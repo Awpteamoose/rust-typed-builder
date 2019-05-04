@@ -77,7 +77,7 @@ impl<'a> StructInfo<'a> {
         Ok(quote! {
             impl #impl_generics #name #ty_generics #where_clause {
                 #[doc=#doc]
-                #[allow(dead_code)]
+                #[allow(dead_code, clippy::default_trait_access)]
                 #vis fn builder() -> #builder_name #generics_with_empty {
                     #builder_name {
                         _TypedBuilder__phantomGenerics_: ::std::default::Default::default(),
@@ -88,7 +88,7 @@ impl<'a> StructInfo<'a> {
 
             #[must_use]
             #[doc(hidden)]
-            #[allow(dead_code, non_camel_case_types, non_snake_case)]
+            #[allow(dead_code, non_camel_case_types, non_snake_case, clippy::default_trait_access)]
             #vis struct #builder_name #b_generics {
                 _TypedBuilder__phantomGenerics_: (#( ::std::marker::PhantomData<#phantom_generics> ),*),
                 #builder_generics
@@ -128,7 +128,7 @@ impl<'a> StructInfo<'a> {
                           .. } = self;
         Ok(quote! {
             #[doc(hidden)]
-            #[allow(dead_code, non_camel_case_types, non_snake_case)]
+            #[allow(dead_code, non_camel_case_types, non_snake_case, clippy::default_trait_access)]
             pub trait #trait_name<T> {
                 fn #method_name(self, default: T) -> T;
             }
@@ -186,7 +186,7 @@ impl<'a> StructInfo<'a> {
         });
         let (impl_generics, _, where_clause) = generics.split_for_impl();
         Ok(quote!{
-            #[allow(dead_code, non_camel_case_types, missing_docs)]
+            #[allow(dead_code, non_camel_case_types, missing_docs, clippy::default_trait_access)]
             impl #impl_generics #builder_name < #( #ty_generics ),* > #where_clause {
                 pub fn #field_name<#generic_ident: ::std::convert::Into<#field_type>>(self, value: #generic_ident) -> #builder_name < #( #target_generics ),* > {
                     #builder_name {
@@ -245,13 +245,16 @@ impl<'a> StructInfo<'a> {
         let assignments = self.fields.iter().map(|field| {
             let ref name = field.name;
             if let Some(ref default) = field.builder_attr.default {
-                quote!(#name: self.#name.#helper_trait_method_name(#default))
+                quote!(
+                    #[allow(clippy::default_trait_access)]
+                    #name: self.#name.#helper_trait_method_name(#default)
+                )
             } else {
                 quote!(#name: self.#name.0)
             }
         });
         quote!(
-            #[allow(dead_code, non_camel_case_types, missing_docs)]
+            #[allow(dead_code, non_camel_case_types, missing_docs, clippy::default_trait_access)]
             impl #impl_generics #builder_name #modified_ty_generics #where_clause {
                 pub fn build(self) -> #name #ty_generics {
                     #name {
