@@ -159,7 +159,7 @@ impl<'a> StructInfo<'a> {
             extern crate core as #core;
             impl #impl_generics #name #ty_generics #where_clause {
                 #[doc = #builder_method_doc]
-                #[allow(dead_code)]
+                #[allow(dead_code, clippy::default_trait_access)]
                 #vis fn builder() -> #builder_name #generics_with_empty {
                     #builder_name {
                         #init_phantom_generics
@@ -170,7 +170,7 @@ impl<'a> StructInfo<'a> {
 
             #[must_use]
             #builder_type_doc
-            #[allow(dead_code, non_camel_case_types, non_snake_case)]
+            #[allow(dead_code, non_camel_case_types, non_snake_case, clippy::default_trait_access)]
             #vis struct #builder_name #b_generics {
                 #phantom_generic_fields
                 #builder_generics
@@ -184,7 +184,7 @@ impl<'a> StructInfo<'a> {
         let trait_name = &self.conversion_helper_trait_name;
         Ok(quote! {
             #[doc(hidden)]
-            #[allow(dead_code, non_camel_case_types, non_snake_case)]
+            #[allow(dead_code, non_camel_case_types, non_snake_case, clippy::default_trait_access)]
             pub trait #trait_name<T> {
                 fn into_value<F: FnOnce() -> T>(self, default: F) -> T;
             }
@@ -267,7 +267,7 @@ impl<'a> StructInfo<'a> {
             quote!(__typed_builder_phantom_generics: self.__typed_builder_phantom_generics,)
         };
         Ok(quote! {
-            #[allow(dead_code, non_camel_case_types, missing_docs)]
+            #[allow(dead_code, non_camel_case_types, missing_docs, clippy::default_trait_access)]
             impl #impl_generics #builder_name < #( #ty_generics ),* > #where_clause {
                 #doc
                 pub fn #field_name<#generic_ident: #core::convert::Into<#field_type>>(self, value: #generic_ident) -> #builder_name < #( #target_generics ),* > {
@@ -364,7 +364,7 @@ impl<'a> StructInfo<'a> {
             quote!()
         };
         quote!(
-            #[allow(dead_code, non_camel_case_types, missing_docs)]
+            #[allow(dead_code, non_camel_case_types, missing_docs, clippy::default_trait_access)]
             impl #impl_generics #builder_name #modified_ty_generics #where_clause {
                 #doc
                 pub fn build(self) -> #name #ty_generics {
